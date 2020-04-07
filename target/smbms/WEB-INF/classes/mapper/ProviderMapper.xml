@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.smbms.dao.ProviderMapper">
+
+    <select id="getProviderCount" resultType="integer">
+        SELECT COUNT(1) as count FROM smbms_provider
+        <trim prefix="where" prefixOverrides="and | or">
+            <if test="proCode!=null and proCode!=''">
+                AND proCode LIKE CONCAT('%',#{proCode},'%')
+            </if>
+            <if test="proName!=null and proName!=''">
+                AND proName LIKE CONCAT('%',#{proName},'%')
+            </if>
+        </trim>
+    </select>
+
+    <select id="getProviderList" resultType="Provider">
+        SELECT * FROM smbms_provider
+        <trim prefix="where" prefixOverrides="and | or">
+            <if test="queryProCode!=null and queryProCode!=''">
+                and proCode LIKE CONCAT('%',#{queryProCode},'%')
+            </if>
+            <if test="queryProName!=null and queryProName!=''">
+                and proName LIKE CONCAT('%',#{queryProName},'%')
+            </if>
+        </trim>
+        LIMIT #{currentPageNo},#{pageSize}
+    </select>
+
+    <select id="getProvider" resultType="Provider">
+        select * from smbms_provider where id=#{id}
+    </select>
+
+    <update id="updateProvider" parameterType="Provider">
+        UPDATE smbms_provider
+        <trim prefix="SET" suffix="where id=#{id}" suffixOverrides=",">
+            <if test="proCode!=null and proCode!=''">proCode=#{proCode},</if>
+            <if test="proName!=null and proName!=''">proName=#{proName},</if>
+            <if test="proContact!=null and proContact!=''">proContact=#{proContact},</if>
+            <if test="proPhone!=null and proPhone!=''">proPhone=#{proPhone},</if>
+            <if test="proAddress!=null and proAddress!=''">proAddress=#{proAddress},</if>
+            <if test="proFax!=null and proFax!=''">proFax=#{proFax},</if>
+            <if test="proDesc!=null and proDesc!=''">proDesc=#{proDesc},</if>
+            <if test="companyLicPicPath!=null and companyLicPicPath!=''">companyLicPicPath=#{companyLicPicPath},</if>
+            <if test="orgCodePicPath!=null and orgCodePicPath!=''">orgCodePicPath=#{orgCodePicPath},</if>
+            <if test="createdBy!=0 and createdBy!=''">createdBy=#{createdBy},</if>
+        </trim>
+    </update>
+
+    <select id="getProviderBill" resultType="integer">
+        SELECT COUNT(1) as count FROM smbms_provider p
+        JOIN smbms_bill b
+        ON p.id=b.providerId
+        WHERE b.providerId=#{id}
+    </select>
+
+    <delete id="delProvider" parameterType="integer">
+        delete from smbms_provider where id=#{id}
+    </delete>
+
+    <insert id="providerAdd" parameterType="Provider">
+        INSERT INTO smbms_provider(`proCode`,`proName`,`proDesc`,`proContact`,`proPhone`,`proAddress`,`proFax`,`createdBy`,`creationDate`,`companyLicPicPath`,`orgCodePicPath`)
+        VALUES(#{proCode},#{proName},#{proDesc},#{proContact},#{proPhone},#{proAddress},#{proFax},#{createdBy},#{creationDate},#{companyLicPicPath},#{orgCodePicPath})
+    </insert>
+
+    <select id="getProviderProName" resultType="Provider">
+        select * from smbms_provider
+    </select>
+</mapper>

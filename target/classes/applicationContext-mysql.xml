@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context-3.2.xsd">
+    <context:component-scan base-package="cn.smbms"/>
+    <!--读取数据库配置文件-->
+    <context:property-placeholder location="classpath*:database.properties"/>
+    <!--获取数据源-->
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="${driver}"/>
+        <property name="url" value="${url}"/>
+        <property name="username" value="${user}"/>
+        <property name="password" value="${password}"/>
+        <property name="initialSize" value="${initialSize}"/>
+        <property name="maxActive" value="${maxActive}"/>
+        <property name="maxIdle" value="${maxIdle}"/>
+        <property name="minIdle" value="${minIdle}"/>
+        <property name="maxWait" value="${maxWait}"/>
+        <property name="removeAbandoned" value="${removeAbandoned}"/>
+        <property name="removeAbandonedTimeout" value="${removeAbandonedTimeout}"/>
+        <!--sql心跳-->
+        <!--开启evict的定时校验(循环校验)-->
+        <property name="testWhileIdle" value="true"/>
+        <!--定义在进行borrowObject处理时，对拿到的连接是否进行校验 false为不校验 默认为false-->
+        <property name="testOnBorrow" value="false"/>
+        <!--定义在returnObject时，对返回的连接是否进行校验 false为不校验 默认为false-->
+        <property name="testOnReturn" value="false"/>
+        <!--定义检验使用的sql语句 跟mysql简单通信时 校验连接是否有效 注意:sql语句不能太复杂 否则严重消耗性能-->
+        <property name="validationQuery" value="select 1"/>
+        <!--定义evict的时间间隔，单位为毫秒 这个值大于0才会开启-->
+        <property name="timeBetweenEvictionRunsMillis" value="60000"/>
+        <!--定义每次校验连接的数量 一般情况下 该值会和maxActive大小一样，每次可以校验所有的连接-->
+        <property name="numTestsPerEvictionRun" value="${maxActive}"/>
+    </bean>
+</beans>

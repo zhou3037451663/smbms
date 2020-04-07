@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.smbms.dao.UserMapper">
+
+    <select id="login" resultType="User">
+        select * from smbms_user where userCode=#{userCode}
+    </select>
+
+    <resultMap id="userList" type="User">
+        <id property="id" column="id"/>
+        <result property="userCode" column="userCode"/>
+        <result property="userName" column="userName"/>
+        <result property="userPassword" column="userPassword"/>
+        <result property="gender" column="gender"/>
+        <result property="birthday" column="birthday"/>
+        <result property="phone" column="phone"/>
+        <result property="address" column="address"/>
+        <result property="userRole" column="userRole"/>
+        <result property="createdBy" column="createdBy"/>
+        <result property="creationDate" column="creationDate"/>
+        <result property="modifyBy" column="modifyBy"/>
+        <result property="modifyDate" column="modifyDate"/>
+        <result property="age" column="age"/>
+        <association property="role" javaType="Role">
+            <result property="roleName" column="roleName"/>
+        </association>
+    </resultMap>
+    <select id="getUserList" resultMap="userList">
+        SELECT u.*,r.roleName,(YEAR(NOW())-YEAR(u.birthday)) as age FROM smbms_user u
+        JOIN smbms_role r
+        ON u.userRole = r.id
+        <trim prefix="where" prefixOverrides="and | or">
+            <if test="queryUserName!=null and queryUserName!=''">
+                and u.userName LIKE CONCAT('%',#{queryUserName},'%')
+            </if>
+            <if test="queryUserRole!=0 and queryUserRole!=''">
+                and u.userRole = #{queryUserRole}
+            </if>
+        </trim>
+        order by u.creationDate
+        LIMIT #{currentPageNo},#{pageSize}
+    </select>
+
+    <select id="getUserCount" resultType="integer">
+        SELECT COUNT(1) AS COUNT FROM smbms_user u
+        JOIN smbms_role r
+        ON u.userRole=r.id
+        <trim prefix="where" prefixOverrides="and | or">
+            <if test="queryUserName!=null and queryUserName!=''">
+                and u.userName LIKE CONCAT('%',#{queryUserName},'%')
+            </if>
+            <if test="queryUserRole!=null and queryUserRole!=''">
+                AND u.userRole = #{queryUserRole}
+            </if>
+        </trim>
+    </select>
+
+    <select id="getUserById" resultType="User">
+        SELECT * FROM smbms_user WHERE id=#{id}
+    </select>
+    <update id="userModifySave" parameterType="User">
+        UPDATE smbms_user SET userName=#{userName},gender=#{gender},birthday=#{birthday},phone=#{phone},address=#{address} WHERE id=#{id}
+    </update>
+    <delete id="delUserName" parameterType="integer">
+        DELETE FROM smbms_user WHERE id =#{id}
+    </delete>
+
+    <insert id="addUser" parameterType="User">
+        INSERT INTO smbms_user(`userCode`,`userName`,`userPassword`,`gender`,`birthday`,`phone`,`address`,`userRole`,`createdBy`,`creationDate`,`idPicPath`,`workPicPath`)
+        VALUES(#{userCode},#{userName},#{userPassword},#{gender},#{birthday},#{phone},#{address},#{userRole},#{createdBy},#{creationDate},#{idPicPath},#{workPicPath})
+    </insert>
+
+    <select id="getUserByUserCode" resultType="User">
+        select * from smbms_user where userCode=#{userCode}
+    </select>
+
+    <update id="updatePassword">
+        UPDATE smbms_user
+        <set>
+            <if test="password!=null and password!=''">
+                userPassword =#{password}
+            </if>
+            <if test="id!=0 and id!=''">
+                where id=#{id}
+            </if>
+        </set>
+    </update>
+</mapper>

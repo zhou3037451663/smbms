@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.smbms.dao.BillMapper">
+    <resultMap id="billList" type="Bill">
+        <id property="id" column="id"/>
+        <result property="billCode" column="billCode"/>
+        <result property="productName" column="productName"/>
+        <result property="productDesc" column="productDesc"/>
+        <result property="productUnit" column="productUnit"/>
+        <result property="productCount" column="productCount"/>
+        <result property="totalPrice" column="totalPrice"/>
+        <result property="isPayment" column="isPayment"/>
+        <result property="createdBy" column="createdBy"/>
+        <result property="creationDate" column="creationDate"/>
+        <association property="provider" javaType="Provider">
+            <result property="proName" column="proName"/>
+        </association>
+    </resultMap>
+    <select id="getBillList" resultMap="billList">
+        SELECT b.*,p.`proName` as proName FROM smbms_bill b
+        JOIN smbms_provider p
+        ON b.`providerId`=p.`id`
+        <trim prefix="where" prefixOverrides="and | or">
+            <if test="queryProductName!=null and queryProductName!=''">
+                and b.`productName` LIKE CONCAT('%',#{queryProductName},'%')
+            </if>
+            <if test="queryProviderId!='' and queryProviderId!=0">
+                and b.`providerId`=#{queryProviderId}
+            </if>
+            <if test="queryIsPayment!='' and queryIsPayment!=0">
+                AND b.`isPayment`=#{queryIsPayment}
+            </if>
+        </trim>
+    </select>
+
+    <resultMap id="billList1" type="Bill">
+        <association property="provider" javaType="Provider">
+            <result property="proName" column="proName"/>
+        </association>
+    </resultMap>
+    <select id="getBill" resultMap="billList1">
+        SELECT b.*,p.`proName` as proName FROM smbms_bill b
+        JOIN smbms_provider p
+        ON b.`providerId`=p.`id`
+        WHERE b.id=#{id}
+    </select>
+
+
+    <select id="getBillByCodeName" resultType="Bill">
+         SELECT * FROM smbms_bill WHERE billCode=#{billCode}
+    </select>
+
+    <insert id="addBill" parameterType="Bill">
+         INSERT INTO smbms_bill(`billCode`,`productName`,`productUnit`,`productCount`,`totalPrice`,`isPayment`,`providerId`)
+    VALUES(#{billCode},#{productName},#{productUnit},#{productCount},#{totalPrice},#{isPayment},#{providerId})
+    </insert>
+
+    <delete id="delBill" parameterType="integer">
+        DELETE FROM smbms_bill WHERE id =#{id}
+    </delete>
+
+    <resultMap id="getBill1" type="Bill">
+        <id property="id" column="id"/>
+        <result property="billCode" column="billCode"/>
+        <result property="productName" column="productName"/>
+        <result property="productDesc" column="productDesc"/>
+        <result property="productUnit" column="productUnit"/>
+        <result property="productCount" column="productCount"/>
+        <result property="totalPrice" column="totalPrice"/>
+        <result property="isPayment" column="isPayment"/>
+        <result property="createdBy" column="createdBy"/>
+        <result property="creationDate" column="creationDate"/>
+        <association property="provider" javaType="Provider">
+            <result property="proName" column="proName"/>
+        </association>
+    </resultMap>
+    <select id="getBillById" resultMap="getBill1">
+       SELECT b.*,p.`proName` as proName FROM smbms_bill b
+        JOIN smbms_provider p
+        ON b.`providerId`=p.`id`
+        WHERE b.`id`=#{id}
+    </select>
+
+    <update id="updateBill" parameterType="Bill">
+       UPDATE smbms_bill
+        <trim prefix="SET" suffix="where id=#{id}" suffixOverrides=",">
+            <if test="billCode!=null and billCode!=''">billCode=#{billCode},</if>
+            <if test="productName!=null and productName!=''">productName=#{productName},</if>
+            <if test="productUnit!=null and productUnit!=''">productUnit=#{productUnit},</if>
+            <if test="productCount!=0 and productCount!=''">productCount=#{productCount},</if>
+            <if test="totalPrice!=0 and totalPrice!=''">totalPrice=#{totalPrice},</if>
+            <if test="providerId!=0 and providerId!=''">providerId=#{providerId},</if>
+            <if test="isPayment!=0 and isPayment!=''">isPayment=#{isPayment},</if>
+            <if test="createdBy!=0 and createdBy!=''">createdBy=#{createdBy},</if>
+            <if test="creationDate!=null and creationDate!=''">creationDate=#{creationDate},</if>
+        </trim>
+    </update>
+</mapper>
